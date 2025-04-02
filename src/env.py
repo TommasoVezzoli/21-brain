@@ -136,26 +136,26 @@ class BlackjackMultiDeckEnv(gym.Env):
         self.dealer = self.draw_hand()
         self.player = self.draw_hand()
         
-        # Check for naturals
-        dealer_natural = self.is_natural(self.dealer)
-        player_natural = self.is_natural(self.player)
+        # # Check for naturals
+        # dealer_natural = self.is_natural(self.dealer)
+        # player_natural = self.is_natural(self.player)
         
-        # Handle naturals
-        if self.natural and (player_natural or dealer_natural):
-            # Game is over if either has a natural
-            if player_natural and dealer_natural:
-                reward = 0
-            elif player_natural:
-                reward = 1.5
-            else:
-                reward = -1
-            done = True
-            self.done = True
-        else:
-            # Game continues
-            reward = 0
-            done = False
-            self.done = False
+        # # Handle naturals
+        # if self.natural and (player_natural or dealer_natural):
+        #     # Game is over if either has a natural
+        #     if player_natural and dealer_natural:
+        #         reward = 0
+        #     elif player_natural:
+        #         reward = 1.5
+        #     else:
+        #         reward = -1
+        #     done = True
+        #     self.done = True
+        # else:
+        #     # Game continues
+        #     reward = 0
+        #     done = False
+        #     self.done = False
         
         # Get the observation
         observation = (
@@ -172,8 +172,35 @@ class BlackjackMultiDeckEnv(gym.Env):
     
     def step(self, action):
         """Take a step in the environment based on the action"""
+        
         assert self.action_space.contains(action)
         
+        # Check for naturals
+        dealer_natural = self.is_natural(self.dealer)
+        player_natural = self.is_natural(self.player)
+        
+        # Handle naturals
+        if self.natural and (player_natural or dealer_natural):
+            # Game is over if either has a natural
+            if player_natural and dealer_natural:
+                reward = 0
+
+            #if the player has a natural blackjack and the dealer does not, the player wins
+            #according to the Sab rule, the reward is not different to a normal one
+            elif player_natural and self.sab:
+                reward = 1
+            #if the player has a natural and sab is false and natural is true we
+            #give more importance to the player's natural
+            elif player_natural and self.natural:
+                reward = 1.5
+            else:
+                reward = -1
+            self.done = True
+        else:
+            # Game continues
+            reward = 0
+            self.done = False
+
         if self.done:
             # Game already over due to natural
             observation = (
@@ -182,7 +209,7 @@ class BlackjackMultiDeckEnv(gym.Env):
                 int(self.usable_ace(self.player)),
                 self.get_normalized_card_counts()
             )
-            reward = 0  # Already handled in reset
+            reward = 0 
             terminated = True
             truncated = False
             info = {"player_hand": self.player, "dealer_hand": self.dealer}
