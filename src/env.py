@@ -21,7 +21,7 @@ class BlackjackEnv(gym.Env):
         self.num_decks = config.get("num_decks", 6)
         self.cut_card_position = config.get("red_card_position", 0.2)
         self.bets = config.get("bet_size", [1])
-        self.actions = config.get("actions", ["hit", "stand"])
+        self.actions = config.get("actions", ["stand", "hit"])
         self.num_players = config.get("num_players", 1)
 
         # Configure the action and observation spaces
@@ -143,7 +143,7 @@ if __name__ == "__main__":
         "num_decks": 6,
         "red_card_position": 0.2,
         "bet_size": [1],
-        "actions": ["hit", "stand"],
+        "actions": ["stand", "hit"],
         "num_players": 1
     }
 
