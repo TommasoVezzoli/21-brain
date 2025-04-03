@@ -65,8 +65,7 @@ class BlackjackEnv(gym.Env):
 
     def step(self, action, action_type="move"):
         reward = 0
-        terminated = False
-        truncated = False
+        done = False
 
         if action_type == "bet":
             bet = self.bets[action]
@@ -83,7 +82,7 @@ class BlackjackEnv(gym.Env):
                     reward = 1.5
                 else:
                     reward = -1
-                terminated = True
+                done = True
 
             dealer_val = self.table.dealer.hand.cards[0].val
             dealer_val += 10 if dealer_val == 1 else 0
@@ -93,15 +92,14 @@ class BlackjackEnv(gym.Env):
                 int(self.table.players[0].hand.check_usable_ace()),
                 self.table.counter.true_count
             )
-            truncated = False
-            return observation, reward, terminated, truncated
+            return observation, reward, done
 
         if action_type == "move":
             if self.actions[action] == "hit":
                 self.table.deal_card(player=0)
                 if self.table.players[0].hand.check_bust():
                     reward = -1
-                    terminated = True
+                    done = True
 
             # TODO: add other actions
             else:
@@ -118,7 +116,7 @@ class BlackjackEnv(gym.Env):
                         reward = -1
                     else:
                         reward = 0
-                terminated = True
+                done = True
 
             dealer_val = self.table.dealer.hand.cards[0].val
             dealer_val += 10 if dealer_val == 1 else 0
@@ -128,7 +126,7 @@ class BlackjackEnv(gym.Env):
                 int(self.table.players[0].hand.check_usable_ace()),
                 self.table.counter.true_count
             )
-            return observation, reward, terminated, truncated
+            return observation, reward, done
 
     def render(self, mode="text"):
         print(self.table)
@@ -155,21 +153,21 @@ if __name__ == "__main__":
         print("Initial observation:", observation)
 
         bet = env.bet_space.sample()
-        observation, reward, terminated, _ = env.step(bet, action_type="bet")
+        observation, reward, done, _ = env.step(bet, action_type="bet")
         print(f"----- Bet: {env.bets[bet]}")
         print(f"New observation: {observation}")
         print(env.table.players[0])
         print(env.table.dealer)
 
-        if not terminated:
+        if not done:
             print("----- Making moves ...")
             while True:
                 action = env.move_space.sample()
                 print(f"Action: {env.actions[action]}")
-                observation, reward, terminated, _ = env.step(action, action_type="move")
+                observation, reward, done, _ = env.step(action, action_type="move")
                 print(f"New observation: {observation}")
                 print(env.table.players[0])
-                if terminated:
+                if done:
                     print(env.table.dealer)
                     break
 
