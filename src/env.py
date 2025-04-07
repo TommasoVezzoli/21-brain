@@ -147,13 +147,15 @@ if __name__ == "__main__":
 
     env = BlackjackEnv(config=config)
 
-    for _ in range(1000):
+    for _ in range(10):
         print("-------------------- Starting round ...")
         observation = env.reset()
         print("Initial observation:", observation)
+        true_count = observation[3]
+        print("True count:", true_count)
 
         bet = env.bet_space.sample()
-        observation, reward, done, _ = env.step(bet, action_type="bet")
+        observation, reward, done = env.step(bet, action_type="bet")
         print(f"----- Bet: {env.bets[bet]}")
         print(f"New observation: {observation}")
         print(env.table.players[0])
@@ -164,7 +166,7 @@ if __name__ == "__main__":
             while True:
                 action = env.move_space.sample()
                 print(f"Action: {env.actions[action]}")
-                observation, reward, done, _ = env.step(action, action_type="move")
+                observation, reward, done = env.step(action, action_type="move")
                 print(f"New observation: {observation}")
                 print(env.table.players[0])
                 if done:
