@@ -31,8 +31,8 @@ class BlackjackEnv(gym.Env):
             (
                 gym.spaces.Discrete(32),    # Player
                 gym.spaces.Discrete(11),    # Dealer
-                gym.spaces.Discrete(2),     # Usable ace
-                gym.spaces.Box(             # Card counters
+                gym.spaces.Discrete(2),     # Ace
+                gym.spaces.Box(             # Count
                     low=0,
                     high=1,
                     shape=(11, ),
@@ -147,13 +147,13 @@ if __name__ == "__main__":
 
     env = BlackjackEnv(config=config)
 
-    for _ in range(1000):
+    for _ in range(10):
         print("-------------------- Starting round ...")
         observation = env.reset()
         print("Initial observation:", observation)
 
         bet = env.bet_space.sample()
-        observation, reward, done, _ = env.step(bet, action_type="bet")
+        observation, reward, done = env.step(bet, action_type="bet")
         print(f"----- Bet: {env.bets[bet]}")
         print(f"New observation: {observation}")
         print(env.table.players[0])
@@ -164,7 +164,7 @@ if __name__ == "__main__":
             while True:
                 action = env.move_space.sample()
                 print(f"Action: {env.actions[action]}")
-                observation, reward, done, _ = env.step(action, action_type="move")
+                observation, reward, done = env.step(action, action_type="move")
                 print(f"New observation: {observation}")
                 print(env.table.players[0])
                 if done:
