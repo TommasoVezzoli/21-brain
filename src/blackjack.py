@@ -120,6 +120,7 @@ class Counter:
     def __init__(self, num_decks):
         self.num_decks = num_decks
         self.cards = []
+        self.cards_seen = 0
         self.count = 0
         self.true_count = 0
 
@@ -132,16 +133,24 @@ class Counter:
         elif card.val in [10, 11]:
             self.count -= 1
 
-        # Adjust the count for the number of decks remaining in the shoe
-        # TODO: Check this in the book
-        n_decks_left = (self.num_decks*52 - len(self.cards))//2 + 1
-        self.true_count = self.count // n_decks_left
+        # # Adjust the count for the number of decks remaining in the shoe
+        # # TODO: Check this in the book
+        # n_decks_left = (self.num_decks*52 - len(self.cards))//2 + 1
+        # self.true_count = self.count // n_decks_left
         self.cards.append(card)
+        # Update cards seen
+        self.cards_seen += 1
+        
+        # Calculate true count - use float division for precision
+        decks_remaining = max(0.5, (self.num_decks * 52 - self.cards_seen) / 52)
+        self.true_count = self.count / decks_remaining
+        # print(f"Count: {self.count} | True Count: {self.true_count}")
 
     def reset(self):
         self.count = 0
         self.true_count = 0
         self.cards = []
+        self.cards_seen = 0
 
 
 class Table:

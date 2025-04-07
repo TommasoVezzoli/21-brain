@@ -151,6 +151,8 @@ if __name__ == "__main__":
         print("-------------------- Starting round ...")
         observation = env.reset()
         print("Initial observation:", observation)
+        true_count = observation[3]
+        print("True count:", true_count)
 
         bet = env.bet_space.sample()
         observation, reward, done = env.step(bet, action_type="bet")
