@@ -8,7 +8,7 @@ class Card:
     def __init__(self, rank, suit):
         self.rank = rank
         self.suit = suit
-        self.val = min(Card.RANKS.index(rank)+1, 10)
+        self.val = min(Card.RANKS.index(rank)+1, 10) if rank != "A" else 11
 
     def __str__(self):
         return f"{self.rank}{self.suit}"
@@ -135,16 +135,10 @@ class Counter:
 
         # # Adjust the count for the number of decks remaining in the shoe
         # # TODO: Check this in the book
-        # n_decks_left = (self.num_decks*52 - len(self.cards))//2 + 1
-        # self.true_count = self.count // n_decks_left
         self.cards.append(card)
-        # Update cards seen
         self.cards_seen += 1
-        
-        # Calculate true count - use float division for precision
         decks_remaining = max(0.5, (self.num_decks * 52 - self.cards_seen) / 52)
         self.true_count = self.count / decks_remaining
-        # print(f"Count: {self.count} | True Count: {self.true_count}")
 
     def reset(self):
         self.count = 0
