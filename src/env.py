@@ -89,7 +89,7 @@ class BlackjackEnv(gym.Env):
             observation = (
                 self.table.players[0].hand.get_score(),
                 dealer_val,
-                int(self.table.players[0].hand.check_usable_ace()),
+                int(self.table.players[0].hand.check_soft()),
                 self.table.counter.true_count
             )
             return observation, reward, done
@@ -123,7 +123,7 @@ class BlackjackEnv(gym.Env):
             observation = (
                 self.table.players[0].hand.get_score(),
                 dealer_val,
-                int(self.table.players[0].hand.check_usable_ace()),
+                int(self.table.players[0].hand.check_soft()),
                 self.table.counter.true_count
             )
             return observation, reward, done

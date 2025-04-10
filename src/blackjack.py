@@ -8,7 +8,7 @@ class Card:
     def __init__(self, rank, suit):
         self.rank = rank
         self.suit = suit
-        self.val = min(Card.RANKS.index(rank)+1, 10) if rank != "A" else 11
+        self.val = min(Card.RANKS.index(rank)+1, 10)
 
     def __str__(self):
         return f"{self.rank}{self.suit}"
@@ -54,20 +54,20 @@ class Hand:
     def __str__(self):
         return " ".join(map(str, self.cards))
 
-    def check_usable_ace(self):
+    def check_soft(self):
         val, ace = 0, 0
         for card in self.cards:
-            if card.val == 1:
+            if card.rank == "A":
                 ace += 1
-            val += min(card.val, 10)
+            val += card.val
 
-        if ace > 0 and val + 10 <= 21:
+        if ace > 0 and val+10 <= 21:
             return True
         return False
 
     def get_value(self):
         val = sum(card.val for card in self.cards)
-        if self.check_usable_ace():
+        if self.check_soft():
             val += 10
         return val
 
@@ -130,7 +130,7 @@ class Counter:
     def update(self, card):
         if card.val in [2, 3, 4, 5, 6]:
             self.count += 1
-        elif card.val in [10, 11]:
+        elif card.val == 10 or card.rank == "A":
             self.count -= 1
 
         # # Adjust the count for the number of decks remaining in the shoe
