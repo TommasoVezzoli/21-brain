@@ -31,8 +31,8 @@ class BlackjackEnv(gym.Env):
             (
                 gym.spaces.Discrete(32),    # Player
                 gym.spaces.Discrete(11),    # Dealer
-                gym.spaces.Discrete(2),     # Usable ace
-                gym.spaces.Box(             # Card counters
+                gym.spaces.Discrete(2),     # Ace
+                gym.spaces.Box(             # Count
                     low=0,
                     high=1,
                     shape=(11, ),
@@ -89,7 +89,7 @@ class BlackjackEnv(gym.Env):
             observation = (
                 self.table.players[0].hand.get_score(),
                 dealer_val,
-                int(self.table.players[0].hand.check_usable_ace()),
+                int(self.table.players[0].hand.check_soft()),
                 self.table.counter.true_count
             )
             return observation, reward, done
@@ -123,7 +123,7 @@ class BlackjackEnv(gym.Env):
             observation = (
                 self.table.players[0].hand.get_score(),
                 dealer_val,
-                int(self.table.players[0].hand.check_usable_ace()),
+                int(self.table.players[0].hand.check_soft()),
                 self.table.counter.true_count
             )
             return observation, reward, done
