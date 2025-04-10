@@ -21,7 +21,7 @@ class BlackjackEnv(gym.Env):
         self.num_decks = config.get("num_decks", 6)
         self.cut_card_position = config.get("red_card_position", 0.2)
         self.bets = config.get("bet_size", [1])
-        self.actions = config.get("actions", ["stand", "hit"])
+        self.actions = config.get("actions", ["stand", "hit", "double"])
         self.num_players = config.get("num_players", 1)
 
         # Configure the action and observation spaces
@@ -102,6 +102,28 @@ class BlackjackEnv(gym.Env):
                     done = True
 
             # TODO: add other actions
+            elif self.actions[action] == "double":
+                # bet = self.table.players[0].bet
+                # self.table.players[0].bet = bet * 2
+                self.table.deal_card(player=0)
+                if self.table.players[0].hand.check_bust():
+                    reward = -1
+                    done = True
+                else:
+                    while self.table.dealer.move() == "hit":
+                        self.table.deal_card("dealer")
+                    if self.table.dealer.hand.check_bust():
+                        reward = 1
+                    else:
+                        p_score = self.table.players[0].hand.get_score()
+                        d_score = self.table.dealer.hand.get_score()
+                        if p_score > d_score:
+                            reward = 1
+                        elif p_score < d_score:
+                            reward = -1
+                        else:
+                            reward = 0
+                    done = True
             else:
                 while self.table.dealer.move() == "hit":
                     self.table.deal_card("dealer")
