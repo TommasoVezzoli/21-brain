@@ -41,7 +41,7 @@ class Deck:
         return self.cards.pop()
 
     def check_cut_card(self):
-        return len(self) < self.cut_card_pos
+        return len(self.cards) <= self.num_decks * 52 * self.cut_card_position
 
 
 class Hand:
