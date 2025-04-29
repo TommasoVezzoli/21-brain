@@ -47,6 +47,8 @@ class Deck:
 class Hand:
     def __init__(self, cards=None):
         self.cards = cards if cards else []
+        self.is_split = False
+        self.is_done = False
 
     def __len__(self):
         return len(self.cards)
@@ -72,7 +74,7 @@ class Hand:
         return val
 
     def check_natural(self):
-        return self.get_value() == 21 and len(self.cards) == 2
+        return self.get_value() == 21 and len(self.cards) == 2 and not self.is_split
 
     def check_bust(self):
         return self.get_value() > 21
@@ -82,25 +84,77 @@ class Hand:
         if not self.check_bust():
             score = self.get_value()
         return score
+    
+    def can_split(self):
+        if len(self.cards) != 2:
+            return False
+        return self.cards[0].rank == self.cards[1].rank
+    
+    def split(self):
+        if not self.can_split():
+            raise ValueError("Cannot split hand")
+        self.is_split = True
+        new_hand = Hand(cards=[self.cards.pop()])
+        new_hand.is_split = True
+        self.is_split = True
+
+        return new_hand
 
     def reset(self):
         self.cards = []
+        self.is_split = False
+        self.is_done = False
 
 
 class Player:
     def __init__(self, id, hand=None):
         self.id = id
-        self.hand = hand if hand else Hand()
+        # self.hand = hand if hand else Hand()
+        self.hands = [hand if hand else Hand()]
+        self.current_hand_idx = 0
+        self.can_split_aces = True
 
     def __str__(self):
-        return f"Player {self.id}: {self.hand}"
+        # return f"Player {self.id}: {self.hand}"
+        hands_str = "\n  ".join([f"Hand {i}: {hand}" for i, hand in enumerate(self.hands)])
+        return f"Player {self.id}:\n  {hands_str}"
 
     def move(self):
         # TODO: Implement the move
         pass
 
+    def get_current_hand(self):
+        if self.current_hand_idx < len(self.hands):
+            return self.hands[self.current_hand_idx]
+        return None
+    
+    def move_to_next_hand(self):
+        if self.current_hand_idx < len(self.hands) - 1:
+            self.current_hand_idx += 1
+            return True
+        return False
+    
+    def move_to_previous_hand(self):
+        if self.current_hand_idx > 0:
+            self.current_hand_idx -= 1
+            return True
+        return False
+
+    def split_current_hand(self):
+        current_hand = self.get_current_hand()
+        if current_hand and current_hand.can_split():
+            if current_hand.cards[0].rank == "A" and not self.can_split_aces:
+                raise ValueError("Cannot split aces again")
+            
+            new_hand = current_hand.split()
+            if new_hand:
+                self.hands.insert(self.current_hand_idx + 1, new_hand)
+                return True
+        return False
+
     def reset(self):
-        self.hand.reset()
+        self.hands =  [Hand()]
+        self.current_hand_idx = 0
 
 
 class Dealer(Player):
@@ -108,10 +162,10 @@ class Dealer(Player):
         super().__init__("dealer", hand)
 
     def __str__(self):
-        return f"Dealer: {self.hand}"
+        return f"Dealer: {self.hands[0]}"
 
     def move(self):
-        if self.hand.get_value() < 17:
+        if self.hands[0].get_value() < 17:
             return "hit"
         return "stand"
 
@@ -154,25 +208,31 @@ class Table:
         self.counter = Counter(num_decks=deck.num_decks)
         self.players = {i: Player(i) for i in range(num_players)}
         self.dealer = Dealer()
+        self.max_splits = 3
 
     def __str__(self):
-        return "TODO"
+        players_str = "\n".join([str(player) for player in self.players.values()])
+        return f"{players_str}\n{self.dealer}\nCounter: {self.counter}"
 
-    def deal_card(self, player):
+    def deal_card(self, player, hand_idx=None):
         card = self.deck.draw()
         if player == "dealer":
-            self.dealer.hand.cards.append(card)
+            self.dealer.hands[0].cards.append(card)
         else:
-            self.players[player].hand.cards.append(card)
+            if hand_idx is None:
+                self.players[player].get_current_hand().cards.append(card)
+            else:
+                self.players[player].hands[hand_idx].cards.append(card)
         self.counter.update(card)
+        return card
 
     def deal(self):
         for i in range(self.num_players):
             for _ in range(2):
-                self.deal_card(i)
+                self.deal_card(i, hand_idx=0)
         self.deal_card("dealer")
         card = self.deck.draw()
-        self.dealer.hand.cards.append(card)
+        self.dealer.hands[0].cards.append(card)
 
     def reset_counter(self):
         self.counter.reset()
@@ -180,9 +240,18 @@ class Table:
     def reset(self):
         for player in self.players.values():
             player.reset()
-        if self.dealer.hand.cards:
-            self.counter.update(self.dealer.hand.cards[1])
+        if self.dealer.hands[0].cards:
+            self.counter.update(self.dealer.hands[0].cards[1])
         self.dealer.reset()
+    
+    def can_player_split(self, player_id):
+        player = self.players[player_id]
+        current_hand = player.get_current_hand()
+
+        if current_hand and current_hand.can_split():
+            split_count = sum(1 for hand in player.hands if hand.is_split)
+            return split_count < self.max_splits
+        return False
 
 
 class BlackJackGame:
