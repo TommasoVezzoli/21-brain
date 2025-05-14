@@ -2,6 +2,9 @@ import numpy as np
 
 
 class Card:
+    """
+    Class representing a playing card.
+    """
     RANKS = ["A", "2", "3", "4", "5", "6", "7", "8", "9", "10", "J", "Q", "K"]
     SUITS = ["C", "D", "H", "S"]
 
@@ -15,6 +18,9 @@ class Card:
 
 
 class Deck:
+    """
+    Class representing a deck of cards.
+    """
     def __init__(self, num_decks, cut_card_position=0.25):
         self.num_decks = num_decks
         self.cut_card_position = cut_card_position
@@ -31,10 +37,6 @@ class Deck:
         np.random.shuffle(self.cards)
 
         # Reset the cut card position
-        # noise = np.random.randint(-2*(self.num_decks+1), 2*(self.num_decks+1))
-        # self.cut_card_position = int(
-        #     (1-self.cut_card_position)*len(self.cards)
-        # ) + noise
         self.cut_card_pos = int((1-self.cut_card_position)*len(self.cards))
 
     def draw(self):
@@ -45,6 +47,9 @@ class Deck:
 
 
 class Hand:
+    """
+    Class representing a player's hand.
+    """
     def __init__(self, cards=None):
         self.cards = cards if cards else []
         self.is_split = False
@@ -107,6 +112,9 @@ class Hand:
 
 
 class Player:
+    """
+    Class representing a player in the game.
+    """
     def __init__(self, id, hand=None):
         self.id = id
         # self.hand = hand if hand else Hand()
@@ -120,7 +128,6 @@ class Player:
         return f"Player {self.id}:\n  {hands_str}"
 
     def move(self):
-        # TODO: Implement the move
         pass
 
     def get_current_hand(self):
@@ -158,6 +165,9 @@ class Player:
 
 
 class Dealer(Player):
+    """
+    Class representing the dealer in the game.
+    """
     def __init__(self, hand=None):
         super().__init__("dealer", hand)
 
@@ -171,6 +181,9 @@ class Dealer(Player):
 
 
 class Counter:
+    """
+    Class representing the card counter for the game.
+    """
     def __init__(self, num_decks):
         self.num_decks = num_decks
         self.cards = []
@@ -188,7 +201,6 @@ class Counter:
             self.count -= 1
 
         # # Adjust the count for the number of decks remaining in the shoe
-        # # TODO: Check this in the book
         self.cards.append(card)
         self.cards_seen += 1
         decks_remaining = max(0.5, (self.num_decks * 52 - self.cards_seen) / 52)
@@ -202,6 +214,9 @@ class Counter:
 
 
 class Table:
+    """
+    Class representing the table in the game.
+    """
     def __init__(self, deck, num_players):
         self.deck = deck
         self.num_players = num_players
@@ -255,6 +270,9 @@ class Table:
 
 
 class BlackJackGame:
+    """
+    Class representing the Blackjack game. Used for environment simulation.
+    """
     def __init__(
             self,
             num_decks=6,

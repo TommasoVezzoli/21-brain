@@ -7,6 +7,10 @@ import numpy as np
 
 
 def parse_strategy_csv(file_path):
+    """"    
+    Parse a CSV file containing a strategy table.
+    Returns a dictionary with state keys and Q values.
+    """
     try:
         # Read the CSV file
         df = pl.read_csv(file_path)

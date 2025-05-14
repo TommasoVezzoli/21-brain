@@ -163,17 +163,6 @@ class BlackjackEnv(gym.Env):
                     current_hand.is_done = True
                     self.episode_reward += reward
                     
-                    # # Move to the next hand if there is one
-                    # if not player.move_to_next_hand():
-                    #     done = True
-                    #     # If no more hands, we've played through all hands
-                    #     if player.current_hand_idx >= len(player.hands):
-                    #         done = True
-                    #     else:
-                    #         # Deal a card to the new hand if it doesn't have cards yet
-                    #         next_hand = player.get_current_hand()
-                    #         if next_hand and len(next_hand.cards) == 1:  # Split hand with only one card
-                    #             self.table.deal_card(player=0)
                     # Move to the next hand if there is one
                     if not player.move_to_next_hand():
                         done = True
@@ -254,7 +243,7 @@ class BlackjackEnv(gym.Env):
                 current_hand.is_done = True
                 
                 if current_hand.check_bust():
-                    reward = -1*2
+                    reward = -2
                     self.episode_reward += reward #possibly multiply by 2
                 
                 # Move to the next hand if there is one
@@ -269,13 +258,13 @@ class BlackjackEnv(gym.Env):
                     for hand in player.hands:
                         if not hand.check_bust():
                             if dealer_bust:
-                                reward += 1*2
+                                reward += 2
                             else:
                                 player_score = hand.get_score()
                                 if player_score > dealer_score:
-                                    reward += 1*2
+                                    reward += 2
                                 elif player_score < dealer_score:
-                                    reward -= 1*2
+                                    reward -= 2
                     
                     self.episode_reward += reward #possibly multiply by 2
                     done = True
