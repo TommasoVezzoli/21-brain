@@ -24,7 +24,7 @@ The Blackjack simulation supports:
 
 ### Observation Space
 
-- Player score (2–21)
+- Player score (1–31)
 - Dealer upcard (1–10)
 - Soft hand indicator (1 if soft hand, 0 otherwise)
 - Indicator for ability to split
